@@ -1,0 +1,100 @@
+<Window x:Class="SystemMetricsApp.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Settings" Height="550" Width="400"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True">
+    <Border Background="#AA000000" Padding="20">
+        <StackPanel>
+            <TextBlock Text="Display Options" Foreground="White" 
+                      FontWeight="Bold" Margin="0,0,0,10"/>
+            
+            <CheckBox x:Name="ShowCpuUsageCheckbox" Content="Show CPU Usage" 
+                      IsChecked="True" Foreground="White" Margin="0,0,0,5"/>
+            <CheckBox x:Name="ShowCpuCoresCheckbox" Content="Show Individual CPU Cores" 
+                      IsChecked="True" Foreground="White" Margin="20,0,0,10"/>
+            
+            <CheckBox x:Name="ShowMemoryUsageCheckbox" Content="Show Memory Usage" 
+                      IsChecked="True" Foreground="White" Margin="0,0,0,10"/>
+            
+            <CheckBox x:Name="ShowDiskUsageCheckbox" Content="Show Disk Usage" 
+                      IsChecked="False" Foreground="White" Margin="0,0,0,10"/>
+
+            <CheckBox x:Name="ShowProcessorMetricsCheckbox" Content="Show Processor Metrics" 
+                      IsChecked="True" Foreground="White" Margin="0,0,0,5"/>
+            
+            <!-- Indented processor metric options -->
+            <StackPanel Margin="20,0,0,10">
+                <CheckBox x:Name="ShowL1CacheCheckbox" Content="L1 Cache Statistics" 
+                          IsChecked="True" Foreground="White" Margin="0,0,0,5"/>
+                <CheckBox x:Name="ShowL2CacheCheckbox" Content="L2 Cache Statistics" 
+                          IsChecked="True" Foreground="White" Margin="0,0,0,5"/>
+                <CheckBox x:Name="ShowCCDInfoCheckbox" Content="CCD Information" 
+                          IsChecked="True" Foreground="White" Margin="0,0,0,5"/>
+                <CheckBox x:Name="ShowMemoryChannelsCheckbox" Content="Memory Channel Info" 
+                          IsChecked="True" Foreground="White" Margin="0,0,0,5"/>
+            </StackPanel>
+            
+            <TextBlock Text="Window Options" Foreground="White" 
+                      FontWeight="Bold" Margin="0,10,0,10"/>
+            
+            <CheckBox x:Name="TopMostCheckbox" Content="Always on Top" 
+                      IsChecked="True" Foreground="White" Margin="0,0,0,10"/>
+            
+            <CheckBox x:Name="ClickThroughCheckbox" Content="Click Through Mode" 
+                      IsChecked="False" Foreground="White" Margin="0,0,0,20"/>
+            
+            <TextBlock Text="Performance Options" 
+                      Foreground="White" 
+                      FontWeight="Bold" 
+                      Margin="0,20,0,10"/>
+            
+            <!-- Add Polling Interval control -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <TextBlock Text="Polling Interval: " 
+                          Foreground="White" 
+                          VerticalAlignment="Center"/>
+                <ComboBox x:Name="PollingIntervalComboBox" 
+                         Width="100" 
+                         SelectedIndex="1">
+                    <ComboBoxItem Content="1 second"/>
+                    <ComboBoxItem Content="2 seconds"/>
+                    <ComboBoxItem Content="5 seconds"/>
+                    <ComboBoxItem Content="10 seconds"/>
+                </ComboBox>
+            </StackPanel>
+            
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="Save" Click="SaveButton_Click" 
+                        Width="100" Height="30" Margin="0,0,10,0"/>
+                <Button Content="Exit Widget" Click="ExitButton_Click"
+                        Width="100" Height="30"/>
+            </StackPanel>
+            
+            <TextBlock Text="Debug Options" 
+                      Foreground="White" 
+                      FontWeight="Bold" 
+                      Margin="0,20,0,10"/>
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <TextBlock Text="Log Level: " 
+                          Foreground="White" 
+                          VerticalAlignment="Center"/>
+                <ComboBox x:Name="LogLevelComboBox" 
+                         Width="100" 
+                         SelectedIndex="1">
+                    <ComboBoxItem Content="Trace"/>
+                    <ComboBoxItem Content="Info"/>
+                    <ComboBoxItem Content="Warning"/>
+                    <ComboBoxItem Content="Error"/>
+                </ComboBox>
+            </StackPanel>
+
+            <CheckBox x:Name="EnableLoggingCheckbox" 
+                      Content="Enable Debug Logging" 
+                      IsChecked="True" 
+                      Foreground="White" 
+                      Margin="0,0,0,20"/>
+        </StackPanel>
+    </Border>
+</Window>

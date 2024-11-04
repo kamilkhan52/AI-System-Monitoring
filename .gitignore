@@ -1,0 +1,30 @@
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.cache
+*.pdb
+
+# Environment files
+.env
+
+# Logs
+*.log
+
+# Windows image file caches
+Thumbs.db
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# NuGet
+packages/
+*.nupkg 

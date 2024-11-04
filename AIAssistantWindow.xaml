@@ -1,0 +1,58 @@
+<Window x:Class="SystemMetricsApp.AIAssistantWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AI Assistant" Height="700" Width="600"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="#FF1E1E1E">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Chat Display Area -->
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="ChatStackPanel" Margin="0,0,0,10"/>
+        </ScrollViewer>
+        
+        <!-- User Input and Send Button -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Input Box / Loading Indicator Container -->
+            <Grid>
+                <TextBox x:Name="UserInputTextBox" 
+                         Height="40" 
+                         Margin="0,0,10,0"
+                         KeyDown="UserInputTextBox_KeyDown"
+                         Background="#FF2D2D2D"
+                         Foreground="White"
+                         BorderBrush="#FF3E3E3E"
+                         FontSize="14"
+                         Padding="10,8"/>
+                
+                <TextBlock x:Name="ThinkingIndicator"
+                          Text="Analyzing..."
+                          Foreground="#AAAAAA"
+                          FontSize="14"
+                          VerticalAlignment="Center"
+                          Margin="10,0"
+                          Visibility="Collapsed"/>
+            </Grid>
+            
+            <Button Grid.Column="1"
+                    Content="Send" 
+                    Width="80" 
+                    Height="40" 
+                    Click="SendButton_Click"
+                    Background="#FF2D2D2D"
+                    Foreground="White"
+                    BorderBrush="#FF3E3E3E"
+                    FontSize="14"/>
+        </Grid>
+    </Grid>
+</Window> 

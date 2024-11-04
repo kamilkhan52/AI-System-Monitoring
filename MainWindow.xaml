@@ -1,0 +1,368 @@
+<Window x:Class="SystemMetricsApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:SystemMetricsApp"
+        xmlns:converters="clr-namespace:SystemMetricsApp.Converters"
+        xmlns:viewmodels="clr-namespace:SystemMetricsApp.ViewModels"
+        Title="System Metrics Widget"
+        MinWidth="200"
+        MinHeight="100"
+        MaxWidth="800"
+        Width="{Binding CoreGridWidth, Mode=TwoWay}"
+        SizeToContent="Height"
+        ResizeMode="CanResizeWithGrip"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        Topmost="True">
+    
+    <Window.Resources>
+        <converters:CpuUsageToColorConverter x:Key="CpuUsageToColorConverter"/>
+        <converters:DiskUsageToColorConverter x:Key="DiskUsageToColorConverter"/>
+        <converters:PercentageToWidthConverter x:Key="PercentageToWidthConverter"/>
+        <converters:CacheMetricsToColorConverter x:Key="CacheMetricsToColorConverter"/>
+    </Window.Resources>
+    
+    <Window.DataContext>
+        <viewmodels:SystemMetricsViewModel/>
+    </Window.DataContext>
+    
+    <Border Background="#AA000000" Margin="10" CornerRadius="10">
+        <Grid>
+            <StackPanel Margin="10">
+                <!-- Top Section with CPU and Controls -->
+                <Grid>
+                    <StackPanel x:Name="CpuUsagePanel">  <!-- Add x:Name here -->
+                        <TextBlock Text="{Binding CpuUsageText}" 
+                                  Foreground="White" 
+                                  FontSize="16" 
+                                  HorizontalAlignment="Center"
+                                  Visibility="{Binding CpuVisibility}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <Button Content="⚙" Width="30" Height="30" Click="SettingsButton_Click"
+                                Background="Transparent" Foreground="White" BorderThickness="0"
+                                Margin="0,0,5,0"/>
+                        <Button Content="×" Width="30" Height="30" Click="ExitButton_Click"
+                                Background="Transparent" Foreground="White" BorderThickness="0"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Core Usage Grid -->
+                <ItemsControl x:Name="CoresGrid" 
+                              Visibility="{Binding CoreGridVisibility, Mode=TwoWay}"
+                              Margin="10">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid x:Name="CoreGrid"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="3" 
+                                    Background="#AA000000">  <!-- Changed from #AA00FF00 to #AA000000 to match the dark theme -->
+                                <StackPanel VerticalAlignment="Center">
+                                    <Border Background="#AA000000" CornerRadius="2" Margin="2">
+                                        <TextBlock Text="{Binding CoreName}" 
+                                                 Foreground="White" 
+                                                 HorizontalAlignment="Center"
+                                                 FontSize="12"
+                                                 Padding="2,1"/>
+                                    </Border>
+                                    <Border Background="#AA000000" CornerRadius="2" Margin="2,0,2,2" Padding="2">
+                                        <Grid Height="16">
+                                            <!-- Background for the progress bar -->
+                                            <Rectangle Fill="#44FFFFFF" RadiusX="2" RadiusY="2"/>
+                                            <!-- Actual progress bar -->
+                                            <Rectangle RadiusX="2" RadiusY="2" HorizontalAlignment="Left"
+                                                     Fill="{Binding Usage, Converter={StaticResource CpuUsageToColorConverter}}">
+                                                <Rectangle.Width>
+                                                    <MultiBinding>
+                                                        <MultiBinding.Converter>
+                                                            <converters:ProgressWidthConverter/>
+                                                        </MultiBinding.Converter>
+                                                        <Binding Path="Usage"/>
+                                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Grid}" Path="ActualWidth"/>
+                                                    </MultiBinding>
+                                                </Rectangle.Width>
+                                            </Rectangle>
+                                            <!-- Percentage text overlay with outline effect for better visibility -->
+                                            <TextBlock Text="{Binding Usage, StringFormat={}{0:0}%}"
+                                                     HorizontalAlignment="Center"
+                                                     VerticalAlignment="Center"
+                                                     FontSize="10">
+                                                <TextBlock.Effect>
+                                                    <DropShadowEffect ShadowDepth="1" Direction="330" Color="Black" 
+                                                                    Opacity="0.8" BlurRadius="2"/>
+                                                </TextBlock.Effect>
+                                                <TextBlock.Foreground>
+                                                    <SolidColorBrush Color="White"/>
+                                                </TextBlock.Foreground>
+                                            </TextBlock>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Add after core grid, before memory section -->
+                <Border Background="#AA000000" CornerRadius="2" Margin="10,5" Padding="2">
+                    <StackPanel Margin="10,5">
+                        <TextBlock Text="{Binding TopCpuProcess}"
+                                   Foreground="White"
+                                   FontSize="14"
+                                   HorizontalAlignment="Left"
+                                   Margin="0,2"/>
+                        <TextBlock Text="{Binding TopMemoryProcess}"
+                                   Foreground="White"
+                                   FontSize="14"
+                                   HorizontalAlignment="Left"
+                                   Margin="0,2"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Space for future memory bandwidth visualization -->
+                <Grid Height="20" Margin="0,10,0,10">
+                    <!-- This space will be used for memory bandwidth visualization later -->
+                </Grid>
+
+                <!-- Memory section moved to bottom -->
+                <StackPanel x:Name="MemoryUsagePanel" Margin="0,5,0,5" Visibility="{Binding MemoryVisibility}">
+                    <TextBlock Text="{Binding MemoryUsageText}"
+                              Foreground="White" 
+                              FontSize="16"
+                              HorizontalAlignment="Center"/>
+                    <!-- Memory Usage Bar -->
+                    <Border Background="#AA000000" CornerRadius="2" Margin="10,5" Padding="2">
+                        <Grid Height="16">
+                            <Rectangle Fill="#44FFFFFF" RadiusX="2" RadiusY="2"/>
+                            <Rectangle RadiusX="2" RadiusY="2" HorizontalAlignment="Left"
+                                     Fill="{Binding MemoryUsagePercentage, Converter={StaticResource CpuUsageToColorConverter}}">
+                                <Rectangle.Width>
+                                    <MultiBinding>
+                                        <MultiBinding.Converter>
+                                            <converters:ProgressWidthConverter/>
+                                        </MultiBinding.Converter>
+                                        <Binding Path="MemoryUsagePercentage"/>
+                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Grid}" Path="ActualWidth"/>
+                                    </MultiBinding>
+                                </Rectangle.Width>
+                            </Rectangle>
+                            <TextBlock Text="{Binding MemoryUsagePercentage, StringFormat={}{0:0.0}%}"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     FontSize="10">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect ShadowDepth="1" Direction="330" Color="Black" 
+                                                    Opacity="0.8" BlurRadius="2"/>
+                                </TextBlock.Effect>
+                                <TextBlock.Foreground>
+                                    <SolidColorBrush Color="White"/>
+                                </TextBlock.Foreground>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+                <!-- Disk Usage Section -->
+                <StackPanel x:Name="DiskUsagePanel"
+                            Visibility="{Binding DiskUsageVisibility, Mode=TwoWay}">
+                    <TextBlock Text="Disk Usage" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,20,0,5"/>
+                    <ItemsControl ItemsSource="{Binding DiskUsages}" Margin="10,5">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Vertical" Margin="0,5,0,0">
+                                    <TextBlock Text="{Binding DriveName}" Foreground="White" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding UsageText}" Foreground="White" FontSize="12"/>
+                                    <!-- Disk Usage Bar -->
+                                    <Border Background="#AA000000" CornerRadius="2" Margin="0,2,0,0" Padding="2">
+                                        <Grid Height="16">
+                                            <Rectangle Fill="#44FFFFFF" RadiusX="2" RadiusY="2"/>
+                                            <Rectangle RadiusX="2" RadiusY="2" HorizontalAlignment="Left"
+                                                     Fill="{Binding UsagePercentage, Converter={StaticResource DiskUsageToColorConverter}}">
+                                                <Rectangle.Width>
+                                                    <MultiBinding>
+                                                        <MultiBinding.Converter>
+                                                            <converters:ProgressWidthConverter/>
+                                                        </MultiBinding.Converter>
+                                                        <Binding Path="UsagePercentage"/>
+                                                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Grid}" Path="ActualWidth"/>
+                                                    </MultiBinding>
+                                                </Rectangle.Width>
+                                            </Rectangle>
+                                            <TextBlock Text="{Binding UsagePercentage, StringFormat={}{0:0.0}%}"
+                                                     HorizontalAlignment="Center"
+                                                     VerticalAlignment="Center"
+                                                     FontSize="10">
+                                                <TextBlock.Effect>
+                                                    <DropShadowEffect ShadowDepth="1" Direction="330" Color="Black" 
+                                                                    Opacity="0.8" BlurRadius="2"/>
+                                                </TextBlock.Effect>
+                                                <TextBlock.Foreground>
+                                                    <SolidColorBrush Color="White"/>
+                                                </TextBlock.Foreground>
+                                            </TextBlock>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- Processor Metrics Section -->
+                <Border Background="#AA000000" 
+                        CornerRadius="2" 
+                        Margin="10,5" 
+                        Padding="2"
+                        Visibility="{Binding ProcessorMetricsVisibility}">
+                    <StackPanel Margin="5">
+                        <!-- Processor Info -->
+                        <TextBlock Text="{Binding ProcessorInfo}" 
+                                  Foreground="White"
+                                  TextAlignment="Left" 
+                                  Margin="0,5,0,10"
+                                  FontSize="12"
+                                  TextWrapping="Wrap"/>
+                        
+                        <!-- Cache Metrics Status -->
+                        <TextBlock Text="{Binding CacheMetricsStatus}" 
+                                  Foreground="#AAAAAA"
+                                  FontSize="12"
+                                  TextAlignment="Right"
+                                  Margin="0,0,0,5"/>
+                        
+                        <!-- Cache Metrics -->
+                        <Grid Margin="0,5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- L1 Instruction Cache -->
+                            <StackPanel Grid.Row="0" Margin="0,2" Visibility="{Binding L1CacheVisibility}">
+                                <TextBlock Text="L1 Instruction Cache Miss" 
+                                          Foreground="White" 
+                                          FontSize="12"/>
+                                <Grid Height="16">
+                                    <Rectangle Fill="#44FFFFFF" RadiusX="2" RadiusY="2"/>
+                                    <Rectangle RadiusX="2" RadiusY="2"
+                                             Fill="{Binding L1ICacheMissRate, 
+                                                    Converter={StaticResource CacheMetricsToColorConverter}}"
+                                             HorizontalAlignment="Left">
+                                        <Rectangle.Width>
+                                            <MultiBinding>
+                                                <MultiBinding.Converter>
+                                                    <converters:ProgressWidthConverter/>
+                                                </MultiBinding.Converter>
+                                                <Binding Path="L1ICacheMissRate"/>
+                                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, 
+                                                 AncestorType=Grid}" Path="ActualWidth"/>
+                                            </MultiBinding>
+                                        </Rectangle.Width>
+                                    </Rectangle>
+                                    <TextBlock Text="{Binding L1ICacheMissRate, StringFormat={}{0:F1}%}"
+                                             Foreground="White"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"
+                                             FontSize="10">
+                                        <TextBlock.Effect>
+                                            <DropShadowEffect ShadowDepth="1" Direction="330" 
+                                                    Color="Black" Opacity="0.8" BlurRadius="2"/>
+                                        </TextBlock.Effect>
+                                    </TextBlock>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- L1 Data Cache -->
+                            <StackPanel Grid.Row="1" Margin="0,2" Visibility="{Binding L1CacheVisibility}">
+                                <TextBlock Text="L1 Data Cache Miss" 
+                                          Foreground="White" 
+                                          FontSize="12"/>
+                                <Grid Height="16">
+                                    <Rectangle Fill="#44FFFFFF" RadiusX="2" RadiusY="2"/>
+                                    <Rectangle RadiusX="2" RadiusY="2"
+                                             Fill="{Binding L1DCacheMissRate, 
+                                                    Converter={StaticResource CacheMetricsToColorConverter}}"
+                                             HorizontalAlignment="Left">
+                                        <Rectangle.Width>
+                                            <MultiBinding>
+                                                <MultiBinding.Converter>
+                                                    <converters:ProgressWidthConverter/>
+                                                </MultiBinding.Converter>
+                                                <Binding Path="L1DCacheMissRate"/>
+                                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, 
+                                                 AncestorType=Grid}" Path="ActualWidth"/>
+                                            </MultiBinding>
+                                        </Rectangle.Width>
+                                    </Rectangle>
+                                    <TextBlock Text="{Binding L1DCacheMissRate, StringFormat={}{0:F1}%}"
+                                             Foreground="White"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"
+                                             FontSize="10">
+                                        <TextBlock.Effect>
+                                            <DropShadowEffect ShadowDepth="1" Direction="330" 
+                                                    Color="Black" Opacity="0.8" BlurRadius="2"/>
+                                        </TextBlock.Effect>
+                                    </TextBlock>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- L2 Cache Hit -->
+                            <StackPanel Grid.Row="2" Margin="0,2" Visibility="{Binding L2CacheVisibility}">
+                                <TextBlock Text="L2 Cache Hit Rate" 
+                                          Foreground="White" 
+                                          FontSize="12"/>
+                                <Grid Height="16">
+                                    <Rectangle Fill="#44FFFFFF" RadiusX="2" RadiusY="2"/>
+                                    <Rectangle RadiusX="2" RadiusY="2"
+                                             Fill="{Binding L2HitRate, 
+                                                    Converter={StaticResource CacheMetricsToColorConverter},
+                                                    ConverterParameter=hit}"
+                                             HorizontalAlignment="Left">
+                                        <Rectangle.Width>
+                                            <MultiBinding>
+                                                <MultiBinding.Converter>
+                                                    <converters:ProgressWidthConverter/>
+                                                </MultiBinding.Converter>
+                                                <Binding Path="L2HitRate"/>
+                                                <Binding RelativeSource="{RelativeSource Mode=FindAncestor, 
+                                                 AncestorType=Grid}" Path="ActualWidth"/>
+                                            </MultiBinding>
+                                        </Rectangle.Width>
+                                    </Rectangle>
+                                    <TextBlock Text="{Binding L2HitRate, StringFormat={}{0:F1}%}"
+                                             Foreground="White"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"
+                                             FontSize="10">
+                                        <TextBlock.Effect>
+                                            <DropShadowEffect ShadowDepth="1" Direction="330" 
+                                                    Color="Black" Opacity="0.8" BlurRadius="2"/>
+                                        </TextBlock.Effect>
+                                    </TextBlock>
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Add the AI button at the bottom of the main StackPanel -->
+                <Button Content="Analyze using AI" 
+                        Height="30" 
+                        Click="AIButton_Click"
+                        Background="Transparent" 
+                        Foreground="White" 
+                        BorderThickness="1"
+                        BorderBrush="#44FFFFFF"
+                        Margin="10,5,10,0"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
